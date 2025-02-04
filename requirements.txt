@@ -1,7 +1,6 @@
 streamlit
 torch
-numpy
-matplotlib
-seaborn
 datasets
 pandas
+huggingface_hub
+fsspec
