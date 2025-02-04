@@ -40,19 +40,41 @@ class CustomTokenizer:
 try:
     dataset = load_dataset('wmt14', 'fr-en', split='train[:1%]', download_config=DownloadConfig(delete_extracted=True))
     # Extract English and French sentences
-    en_texts = [example['en'] for example in dataset['translation']]
-    fr_texts = [example['fr'] for example in dataset['translation']]
+    en_texts = [example['en'] for example in dataset]
+    fr_texts = [example['fr'] for example in dataset]
 except HfHubHTTPError as e:
     st.error(f"Failed to load dataset: {e}")
     st.stop()
 
-# Define the model classes (Encoder, Decoder, Seq2SeqTransformer) as shown previously
+# Dummy Encoder, Decoder, Seq2SeqTransformer (replace these with your actual model implementations)
+class Encoder(torch.nn.Module):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+    def forward(self, x):
+        return x
+
+class Decoder(torch.nn.Module):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+    def forward(self, x):
+        return x
+
+class Seq2SeqTransformer(torch.nn.Module):
+    def __init__(self, encoder, decoder, pad_idx, eos_idx, device):
+        super().__init__()
+        self.encoder = encoder
+        self.decoder = decoder
+        self.pad_idx = pad_idx
+        self.eos_idx = eos_idx
+        self.device = device
+    def forward(self, src, trg):
+        return torch.randn(src.size(0), trg.size(1), 10).to(self.device)  # Dummy output for testing
 
 # Load the trained model
 def load_model(model_path, attn_variant, device):
-    enc = Encoder(INPUT_DIM, HID_DIM, ENC_LAYERS, ENC_HEADS, ENC_PF_DIM, ENC_DROPOUT, attn_variant, device)
-    dec = Decoder(OUTPUT_DIM, HID_DIM, DEC_LAYERS, DEC_HEADS, DEC_PF_DIM, DEC_DROPOUT, attn_variant, device)
-    model = Seq2SeqTransformer(enc, dec, PAD_IDX, PAD_IDX, device).to(device)
+    enc = Encoder()
+    dec = Decoder()
+    model = Seq2SeqTransformer(enc, dec, PAD_IDX, EOS_IDX, device).to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
     return model
@@ -65,8 +87,7 @@ def translate_sentence(model, sentence, src_tokenizer, trg_tokenizer, device, ma
 
     with torch.no_grad():
         for _ in range(max_length):
-            with torch.cuda.amp.autocast():
-                output, _ = model(src_tokens, trg_tokens)
+            output = model(src_tokens, trg_tokens)
             pred_token = output.argmax(2)[:, -1].item()
             trg_tokens = torch.cat([trg_tokens, torch.tensor([[pred_token]]).to(device)], dim=1)
             if pred_token == EOS_IDX:
@@ -111,3 +132,4 @@ if st.button("Translate"):
         st.dataframe(results_df)
     else:
         st.write("Please enter some sentences to translate.")
+
