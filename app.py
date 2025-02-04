@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 from collections import Counter
 import unicodedata
-import math
+from datasets import load_dataset
 
 # Define constants for special tokens
 UNK_IDX, PAD_IDX, SOS_IDX, EOS_IDX = 0, 1, 2, 3
@@ -33,6 +33,13 @@ class CustomTokenizer:
 
     def decode(self, indices):
         return ' '.join([self.idx2word.get(idx, '<unk>') for idx in indices if idx not in {PAD_IDX, SOS_IDX, EOS_IDX}])
+
+# Load the dataset
+dataset = load_dataset('wmt14', 'fr-en', split='train[:1%]')
+
+# Extract English and French sentences
+en_texts = dataset['translation'].map(lambda x: x['en'])
+fr_texts = dataset['translation'].map(lambda x: x['fr'])
 
 # Define the model classes (Encoder, Decoder, Seq2SeqTransformer) as shown previously
 
@@ -67,8 +74,8 @@ st.title("English to French Translator")
 
 # Load models and tokenizers
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-src_tokenizer = CustomTokenizer([], language='en')  # Using an empty list for now
-trg_tokenizer = CustomTokenizer([], language='fr')  # Using an empty list for now
+src_tokenizer = CustomTokenizer(en_texts, language='en')
+trg_tokenizer = CustomTokenizer(fr_texts, language='fr')
 
 general_model_path = 'en-fr-transformer-general.pt'
 multiplicative_model_path = 'en-de-transformer-multiplicative.pt'
