@@ -132,4 +132,3 @@ if st.button("Translate"):
         st.dataframe(results_df)
     else:
         st.write("Please enter some sentences to translate.")
-
