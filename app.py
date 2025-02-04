@@ -4,7 +4,6 @@ import pandas as pd
 from collections import Counter
 import unicodedata
 from datasets import load_dataset
-from huggingface_hub.utils import HfHubHTTPError
 
 # Define constants for special tokens
 UNK_IDX, PAD_IDX, SOS_IDX, EOS_IDX = 0, 1, 2, 3
@@ -127,4 +126,3 @@ if st.button("Translate"):
         st.dataframe(results_df)
     else:
         st.write("Please enter some sentences to translate.")
-
