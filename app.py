@@ -4,7 +4,6 @@ import pandas as pd
 from collections import Counter
 import unicodedata
 from datasets import load_dataset
-from datasets.utils import DownloadConfig
 from huggingface_hub.utils import HfHubHTTPError
 
 # Define constants for special tokens
@@ -38,7 +37,9 @@ class CustomTokenizer:
 
 # Load the dataset
 try:
+    # Load a small portion (1%) of the train set
     dataset = load_dataset('wmt14', 'fr-en', split='train[:1%]')
+    
     # Extract English and French sentences
     en_texts = [example['en'] for example in dataset]
     fr_texts = [example['fr'] for example in dataset]
