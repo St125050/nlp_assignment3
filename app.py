@@ -67,8 +67,8 @@ st.title("English to French Translator")
 
 # Load models and tokenizers
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-src_tokenizer = CustomTokenizer([/* Add your training data here */], language='en')
-trg_tokenizer = CustomTokenizer([/* Add your training data here */], language='fr')
+src_tokenizer = CustomTokenizer([], language='en')  # Using an empty list for now
+trg_tokenizer = CustomTokenizer([], language='fr')  # Using an empty list for now
 
 general_model_path = 'en-fr-transformer-general.pt'
 multiplicative_model_path = 'en-de-transformer-multiplicative.pt'
