@@ -4,6 +4,8 @@ import pandas as pd
 from collections import Counter
 import unicodedata
 from datasets import load_dataset
+from datasets.utils import DownloadConfig
+from huggingface_hub.utils import HfHubHTTPError
 
 # Define constants for special tokens
 UNK_IDX, PAD_IDX, SOS_IDX, EOS_IDX = 0, 1, 2, 3
@@ -35,11 +37,14 @@ class CustomTokenizer:
         return ' '.join([self.idx2word.get(idx, '<unk>') for idx in indices if idx not in {PAD_IDX, SOS_IDX, EOS_IDX}])
 
 # Load the dataset
-dataset = load_dataset('wmt14', 'fr-en', split='train[:1%]')
-
-# Extract English and French sentences
-en_texts = dataset['translation'].map(lambda x: x['en'])
-fr_texts = dataset['translation'].map(lambda x: x['fr'])
+try:
+    dataset = load_dataset('wmt14', 'fr-en', split='train[:1%]', download_config=DownloadConfig(delete_extracted=True))
+    # Extract English and French sentences
+    en_texts = [example['en'] for example in dataset['translation']]
+    fr_texts = [example['fr'] for example in dataset['translation']]
+except HfHubHTTPError as e:
+    st.error(f"Failed to load dataset: {e}")
+    st.stop()
 
 # Define the model classes (Encoder, Decoder, Seq2SeqTransformer) as shown previously
 
